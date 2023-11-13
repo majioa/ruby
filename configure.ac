@@ -4195,6 +4195,12 @@ AC_ARG_WITH(cachedir,
 	    AS_HELP_STRING([--with-cachedir=DIR], [specify ruby cache dir]),
 	    [cachedir=$withval])
 
+AC_ARG_ENABLE(single_instantiating,
+           AS_HELP_STRING([--enable-single-instantiating], [enable single ruby versions in tree]),
+           [single_instantiating=$enableval], [single_instantiating=no])
+test "x$single_instantiating" = xno || single_instantiating=
+AC_SUBST(signle_instantiating)dnl
+
 AC_SUBST(rubyhdrdir)dnl
 AC_SUBST(sitehdrdir)dnl
 AC_SUBST(vendorhdrdir)dnl

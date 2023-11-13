@@ -38,7 +38,15 @@ module Gem
   # specified in the environment
 
   def self.default_dir
-    @default_dir ||= File.join(RbConfig::CONFIG["rubylibprefix"], "gems", RbConfig::CONFIG["ruby_version"])
+    subpath =
+      if Gem.configuration.single_instantiating?
+        ["gemie"]
+      else
+        ["gems", RbConfig::CONFIG["ruby_version"]]
+      end
+    path = [RbConfig::CONFIG["rubylibprefix"]] + subpath
+
+    @default_dir ||= File.join(*path)
   end
 
   ##
@@ -49,7 +57,18 @@ module Gem
   # Ruby counterparts, therefore nil is returned
 
   def self.default_ext_dir_for(base_dir)
-    nil
+    if Gem.configuration.single_instantiating?
+      parts =
+        if base_dir.nil?
+          [RbConfig::CONFIG['rubyarchdir']]
+        elsif base_dir[0...RbConfig::CONFIG['rubylibprefix'].size] == RbConfig::CONFIG['rubylibprefix']
+          [RbConfig::CONFIG['rubyarchdir'], base_dir[RbConfig::CONFIG['rubylibprefix'].size..-1]]
+        else
+          [base_dir]
+        end + ['gemie', 'extensions']
+
+      File.join(parts)
+    end
   end
 
   ##
@@ -237,8 +256,14 @@ module Gem
 
     return nil unless RbConfig::CONFIG.key? "vendordir"
 
-    File.join RbConfig::CONFIG["vendordir"], "gems",
-              RbConfig::CONFIG["ruby_version"]
+    subpath =
+      if Gem.configuration.single_instantiating?
+        ["gemie"]
+      else
+        ["gems", RbConfig::CONFIG["ruby_version"]]
+      end
+
+    File.join RbConfig::CONFIG["vendordir"], *subpath
   end
 
   ##

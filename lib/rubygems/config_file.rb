@@ -224,6 +224,13 @@ class Gem::ConfigFile
   end
 
   ##
+  # Has the ruby build single instantiated, defaulting to false/nil
+
+  def single_instantiating?
+    RbConfig::CONFIG["single_instantiating"] == true
+  end
+
+  ##
   # Hash of RubyGems.org and alternate API keys
 
   def api_keys
