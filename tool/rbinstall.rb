@@ -396,7 +396,6 @@ install?(:local, :arch, :lib, :'lib-arch') do
   end
 
   prepare "arch files", archlibdir
-  install "rbconfig.rb", archlibdir, :mode => $data_mode
   if CONFIG["ARCHFILE"]
     for file in CONFIG["ARCHFILE"].split
       install file, archlibdir, :mode => $data_mode
@@ -436,6 +435,7 @@ install?(:ext, :arch, :hdr, :'arch-hdr', :'hdr-arch') do
 end
 install?(:ext, :comm, :'ext-comm') do
   prepare "extension scripts", rubylibdir
+  install "rbconfig.rb", rubylibdir, :mode => $data_mode
   install_recursive("#{$extout}/common", rubylibdir, :mode => $data_mode)
   prepare "extension scripts", sitelibdir
   prepare "extension scripts", vendorlibdir
@@ -448,7 +448,7 @@ end
 
 install?(:doc, :rdoc) do
   if $rdocdir
-    ridatadir = File.join(CONFIG['ridir'], CONFIG['ruby_version'], "system")
+    ridatadir = File.join(CONFIG['ridir'], "system")
     prepare "rdoc", ridatadir
     install_recursive($rdocdir, ridatadir, :no_install => rdoc_noinst, :mode => $data_mode)
   end
@@ -461,7 +461,7 @@ install?(:doc, :html) do
 end
 install?(:doc, :capi) do
   prepare "capi-docs", docdir
-  install_recursive "doc/capi", docdir+"/capi", :mode => $data_mode
+  install_recursive "doc/capi/html", docdir+"/html/capi", :mode => $data_mode
 end
 
 prolog_script = <<EOS
