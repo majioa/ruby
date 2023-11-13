@@ -184,6 +184,9 @@ module Gem
     path = []
     path << user_dir if user_home && File.exist?(user_home)
     path << default_dir
+    path |= %w(rubylibdir rubyarchdir).map do |key|
+      Dir.glob(File.join(RbConfig::CONFIG[key], 'gems', '{,[0-9]?[0-9]?[0-9]}'))
+    end.flatten.select {|x| File.directory?(x) }
     path << vendor_dir if vendor_dir && File.directory?(vendor_dir)
     path
   end
