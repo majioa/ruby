@@ -770,11 +770,18 @@ if str
   end
 end
 
-if Gem.respond_to?(:activate_bin_path)
-load Gem.activate_bin_path('#{spec.name}', '#{bin_file_name}', version)
+path =
+  if Gem.respond_to?(:activate_bin_path)
+    Gem.activate_bin_path('#{spec.name}', '#{bin_file_name}', version)
+  else
+    gem #{spec.name.dump}, version
+    Gem.bin_path(#{spec.name.dump}, #{bin_file_name.dump}, version)
+  end
+
+if __FILE__ == path
+  #{File.directory?(File.join(FileUtils.pwd, 'libexec', spec.bin_dir)) && IO.read([FileUtils.pwd + '/libexec', spec.bin_dir].find { |dir| File.join(dir, bin_file_name) }) || "load(path)"}
 else
-gem #{spec.name.dump}, version
-load Gem.bin_path(#{spec.name.dump}, #{bin_file_name.dump}, version)
+  load(path)
 end
 TEXT
   end

@@ -190,7 +190,12 @@ class Gem::BasicSpecification
   # eg: /usr/local/lib/ruby/1.8/gems/mygem-1.0
 
   def gem_dir
-    @gem_dir ||= File.expand_path File.join(gems_dir, full_name)
+    @gem_dir ||=
+      if default_gem?
+        File.expand_path(gems_dir)
+      else
+        File.expand_path File.join(gems_dir, full_name)
+      end
   end
 
   ##

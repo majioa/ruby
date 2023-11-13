@@ -1576,7 +1576,12 @@ class Gem::Specification < Gem::BasicSpecification
   # a full path.
 
   def bin_dir
-    @bin_dir ||= File.join gem_dir, bindir
+    @bin_dir ||=
+      if default_gem?
+        Gem.default_bindir
+      else
+        File.join(gem_dir, bindir)
+      end
   end
 
   ##
@@ -1838,10 +1843,19 @@ class Gem::Specification < Gem::BasicSpecification
   #   spec.doc_dir 'ri' # => "/path/to/gem_repo/doc/a-1/ri"
 
   def doc_dir(type = nil)
-    @doc_dir ||= File.join base_dir, "doc", full_name
+    @doc_dir ||=
+      if Gem.configuration.use_system_dirs? && RbConfig::CONFIG['docdir']
+        File.join RbConfig::CONFIG['docdir'], full_name
+      else
+        File.join base_dir, "doc", full_name
+      end
 
     if type
-      File.join @doc_dir, type
+      if Gem.configuration.use_system_dirs? && type == 'ri'
+        ri_dir
+      else
+        File.join @doc_dir, type
+      end
     else
       @doc_dir
     end
@@ -1958,7 +1972,12 @@ class Gem::Specification < Gem::BasicSpecification
   end
 
   def gems_dir
-    @gems_dir ||= File.join(base_dir, "gems")
+    @gems_dir ||=
+      if default_gem?
+        base_dir
+      else
+        File.join(base_dir, "gems")
+      end
   end
 
   ##
@@ -2325,7 +2344,12 @@ class Gem::Specification < Gem::BasicSpecification
   # Returns the full path to this spec's ri directory.
 
   def ri_dir
-    @ri_dir ||= File.join base_dir, "ri", full_name
+    @ri_dir ||=
+      if Gem.configuration.use_system_dirs? && RbConfig::CONFIG['ridir']
+        File.join RbConfig::CONFIG['ridir'], full_name
+      else
+        File.join base_dir, "ri", full_name
+      end
   end
 
   ##

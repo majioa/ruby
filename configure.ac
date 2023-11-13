@@ -3380,10 +3380,33 @@ AS_IF([test ${multiarch+set}], [
    MJIT_HEADER_INSTALL_DIR=include/'${RUBY_VERSION_NAME}/${arch}'
 ])
 
-archlibdir='${libdir}/${arch}'
-sitearchlibdir='${libdir}/${sitearch}'
-archincludedir='${includedir}/${arch}'
-sitearchincludedir='${includedir}/${sitearch}'
+AC_ARG_WITH(sitearchlibdir,
+	    AS_HELP_STRING([--with-sitearchlibdir=DIR],
+			   [architecture dependent site libraries in DIR [[SITEDIR/SITEARCH]]]),
+            [sitearchlibdir=$withval],
+            [sitearchlibdir=${multiarch+'${rubysitearchprefix}/site_ruby'}${multiarch-'${libdir}/${sitearch}'}])
+
+AC_ARG_WITH(archlibdir,
+	    AS_HELP_STRING([--with-archlibdir=DIR],
+			   [architecture dependent libraries in DIR [[LIBDIR/ARCH]]]),
+            [archlibdir=$withval],
+            [archlibdir='${libdir}/${arch}'])
+
+AC_ARG_WITH(archincludedir,
+	    AS_HELP_STRING([--with-archincludedir=DIR],
+			   [architecture dependent includes in DIR [[INCLUDEDIR/ARCH]]]),
+            [archincludedir=$withval],
+            [archincludedir='${includedir}/${arch}'])
+
+AC_ARG_WITH(sitearchincludedir,
+	    AS_HELP_STRING([--with-sitearchincludedir=DIR],
+			   [site architecture dependent includes in DIR [[INCLUDEDIR/SITEARCH]]]),
+            [sitearchincludedir=$withval],
+            [sitearchincludedir='${includedir}/${sitearch}'])
+
+AC_ARG_ENABLE(use-system-dirs,
+            AS_HELP_STRING([--enable-use-system-dirs], [use system folders for doc, ri, cache and vendor data]),
+            [use_system_dirs=$enableval], [use_system_dirs=no])
 
 AC_ARG_WITH(soname,
 	AS_HELP_STRING([--with-soname=SONAME], [base name of shared library]),
@@ -3991,14 +4014,18 @@ AS_CASE(["$target_os"],
     ])
 
 rubylibdir='${rubylibprefix}/${ruby_version}'
-rubyarchdir=${multiarch+'${rubyarchprefix}/${ruby_version}'}${multiarch-'${rubylibdir}/${arch}'}
 
-rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}/${arch}'}
+AC_ARG_WITH(rubyarchdir,
+           AS_HELP_STRING([--with-rubyarchdir=DIR],
+                          [folder for architecture dependent ruby libraries [[RUBYLIBDIR/ARCH]]]),
+           [rubyarchdir="$withval"],
+           [rubyarchdir=${multiarch+'${rubyarchprefix}'}${multiarch-'${rubylibdir}/${arch}'}])
+
 AC_ARG_WITH(rubyarchprefix,
 	    AS_HELP_STRING([--with-rubyarchprefix=DIR],
 			   [prefix for architecture dependent ruby libraries [[RUBYLIBPREFIX/ARCH]]]),
-	    [rubyarchprefix="$withval"])
-AC_SUBST(rubyarchprefix)
+           [rubyarchprefix="$withval"],
+           [rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}/${arch}'}])
 
 rubysitearchprefix=${multiarch+'${sitearchlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}/${sitearch}'}
 AC_ARG_WITH(rubysitearchprefix,
@@ -4163,6 +4190,10 @@ AC_ARG_WITH(vendorarchhdrdir,
 			   [architecture dependent core vendor headers in DIR [[RUBYHDRDIR/vendor_ruby]]]),
 	    [vendorarchhdrdir=$withval],
 	    [vendorarchhdrdir=${multiarch+'${sitearchincludedir}/${RUBY_VERSION_NAME}/vendor_ruby'}${multiarch-'${vendorhdrdir}/${sitearch}'}])
+
+AC_ARG_WITH(cachedir,
+	    AS_HELP_STRING([--with-cachedir=DIR], [specify ruby cache dir]),
+	    [cachedir=$withval])
 
 AC_SUBST(rubyhdrdir)dnl
 AC_SUBST(sitehdrdir)dnl
@@ -4354,6 +4385,8 @@ config_summary "Installation prefix" "$prefix"
 config_summary "exec prefix"         "$exec_prefix"
 config_summary "arch"                "$arch"
 config_summary "site arch"           "$sitearch"
+config_summary "arch lib dir"        "$archlibdir"
+config_summary "ruby arch prefix"    "$rubyarchprefix"
 config_summary "RUBY_BASE_NAME"      "$RUBY_BASE_NAME"
 config_summary "enable shared"       "$enable_shared"
 config_summary "ruby lib prefix"     "$rubylibprefix"
