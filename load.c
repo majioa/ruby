@@ -1143,6 +1143,8 @@ require_internal(rb_execution_context_t *ec, VALUE fname, int exception, bool wa
         path = saved_path;
 
 	if (found) {
+            if (path) path = rb_realpath_internal(Qnil, path, 1);
+
             if (!path || !(ftptr = load_lock(th->vm, RSTRING_PTR(path), warn))) {
 		result = 0;
 	    }
